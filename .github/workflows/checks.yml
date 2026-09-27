@@ -1,0 +1,14 @@
+name: Checks
+on: [push, pull_request]
+jobs:
+  cpu-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.10.8"
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run pytest
+      - run: uv run python -m benchmark.run --submission-path submission_template --device cpu --synthetic --n 2

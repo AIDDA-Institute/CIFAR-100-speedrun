@@ -1,0 +1,11 @@
+.git
+.venv
+.local
+.env*
+seeds.json
+__pycache__
+.pytest_cache
+.ruff_cache
+data
+results
+tests

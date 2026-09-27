@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling==1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cifar100-speedrun"
+version = "0.1.0"
+description = "Organizer-owned CIFAR-100 training speedrun harness"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "numpy==1.26.4",
+  "torch==2.4.0",
+  "torchvision==0.19.0",
+  "pillow==10.4.0",
+]
+
+[dependency-groups]
+dev = ["pytest==8.3.3", "ruff==0.6.9"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["benchmark"]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu124", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" }]
+torchvision = [{ index = "pytorch-cu124", marker = "sys_platform == 'linux' and platform_machine == 'x86_64'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

@@ -11,30 +11,42 @@ and open a pull request. Start with the steps below and read the full
 
 ## 1. Set up your development environment
 
-Fork this repository on GitHub, then clone your fork. Replace
-`YOUR_GITHUB_USERNAME` with your GitHub username:
+The instructions below assume a **remote Linux x86-64 machine with an NVIDIA
+GPU**, where your training experiments will run. Connect using SSH or your
+provider's terminal, then **run the setup and experiment commands on that
+machine**. Your personal laptop can provide the browser and editor. A local
+Linux workstation with a suitable NVIDIA GPU also works.
+
+Fork this repository on GitHub using your browser, then clone your fork on the
+GPU machine. Replace `YOUR_GITHUB_USERNAME` with your GitHub username:
 
 ```bash
 git clone https://github.com/YOUR_GITHUB_USERNAME/CIFAR-100-speedrun.git
 cd CIFAR-100-speedrun
 ```
 
-Install [uv](https://docs.astral.sh/uv/), then install the project's pinned Python
-environment and dependencies:
+Install [uv](https://docs.astral.sh/uv/) on that machine. It manages Python and
+project dependencies. This command creates or updates the project's `.venv`
+environment using the versions recorded in `uv.lock`, without changing that
+lock file:
 
 ```bash
 uv sync --frozen
 ```
 
-Run the remaining commands from the repository directory. The environment uses
-Python 3.12, PyTorch 2.4.0, and torchvision 0.19.0. Linux x86-64 installs the CUDA
-12.4 wheels; ARM/macOS use their available PyPI wheels for development.
+Run the remaining commands from the repository directory on the GPU machine;
+`uv run` runs a command inside the project's environment. The Linux x86-64 setup
+uses Python 3.12, PyTorch 2.4.0, torchvision 0.19.0, and CUDA 12.4 packages.
+Windows and macOS laptops can connect to this remote environment; native Windows
+GPU execution is not configured or tested here.
 
 ### Optional: check that your setup works
 
-This quick check, sometimes called a **smoke test**, runs the tiny example recipe
-twice on your CPU using generated images. It checks that the installed software
-can load a recipe, run it, and save results. It needs no GPU or dataset download.
+Run this on the **same machine where you will run experiments** to check its
+installation. This quick check, sometimes called a **smoke test**, deliberately
+uses that machine's CPU, even on a GPU host. It runs the tiny example recipe twice
+using generated images, checking that the software can load a recipe, run it,
+and save results. The test itself needs no GPU or dataset download.
 
 ```bash
 uv run python -m benchmark.run --submission-path submission_template --device cpu --synthetic --n 2
@@ -58,7 +70,8 @@ example uses only 64 images and three learning steps to demonstrate the interfac
 you will need to replace that tiny demonstration to pursue 75% accuracy.
 
 Your `submission.py` provides three Python functions that the benchmark runner
-(the harness) calls for you:
+(the harness) calls for you. Implement them as standalone functions with these
+arguments:
 
 ```python
 def build(context): ...
@@ -68,16 +81,36 @@ def train(state): ...
 
 | Function | What you do | When it runs | Counts toward training time? |
 | --- | --- | --- | --- |
-| `build` | Create the model structure and reusable resources. Optional compilation can go here. Return an object holding what the next functions need. | Once, before the trials | No |
-| `prepare` | Start a fresh training run: reset the model's weights and training state, and get the training images ready. | Before each trial | Yes |
+| `build` | Create the model structure and reusable resources. Optional compilation/warmup on synthetic inputs can go here. Return an object holding what the next functions need. | Once, before the trials | No |
+| `prepare` | Start a fresh training run: reset the model's weights and training state, and get the training images ready. | Before every trial, including the first | Yes |
 | `train` | Train the model, then return it so the harness can check its predictions. | Once per trial | Yes |
+
+`build` receives a `BuildContext` supplied by the harness: `context.device` is the
+target GPU (or CPU for a smoke test), `context.parameters` holds your optional
+recipe settings, `context.num_classes` is 100, and `context.eval_batch_size` is
+1024. Real training data and the trial seed are supplied later to `prepare`.
+`train_data.images` and `train_data.labels` contain the training images and their
+correct classes, initially in CPU memory.
+
+**State** is the ordinary Python object you return from `build`; there is no
+required state class. The starter uses Python's `types.SimpleNamespace`, an object
+with named attributes such as `state.model` and `state.context`. A dictionary or
+an instance of your own class also works. Both later functions receive this
+**same object**. `prepare` updates its contents for a fresh run and returns nothing.
+In the starter, it resets the weights and adds `state.optimizer`, `state.images`,
+and `state.labels`; `train` uses them to learn and returns `state.model`, the
+trained PyTorch model.
 
 A **trial** is one complete training run from scratch followed by an accuracy check.
 The harness calls `build` once, then repeats `prepare → train → accuracy check` for
 each seed. A **seed** controls random choices such as initial weights and shuffled
-training examples. The object returned by `build` is called **state** and is passed
-to both `prepare` and `train`; it can be a simple dictionary or a class instance.
-Reuse the model structure between trials, but reset everything it learned.
+training examples. Reuse the model structure between trials, but reset everything
+it learned.
+
+Preparation is deliberately timed: resetting training state, moving images to the
+GPU, and preprocessing are work needed for each fresh run. This keeps work using
+real training data inside the score. For example, 1 second preparing plus
+20 seconds training gives a trial time of 21 seconds.
 
 You implement the training recipe. The harness supplies the data and seeds,
 measures time, runs the test images through your returned model, and computes
@@ -99,7 +132,9 @@ automation tools of your choice. See [RULES.md](RULES.md) for the complete rules
 
 ## 3. Test and improve your recipe
 
-Use an NVIDIA GPU with CUDA support for training experiments. An L40S gives
+Run **all commands in this section on the GPU machine**, using your latest recipe
+code there. If you edit files on your laptop, copy or commit/push and pull those
+changes onto the GPU machine before running them. An NVIDIA L40S gives
 representative timings for official judging; CPU setup checks do not estimate
 L40S performance.
 
@@ -176,6 +211,9 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 - Each recipe trains from scratch for the same 50 organizer-selected seeds.
 - All 50 trials must succeed, and average test accuracy must reach **at least 75%**.
   There is no additional accuracy requirement for each individual trial.
+- Accuracy is **top-1**: the percentage of the 10,000 test images for which the
+  model's highest-scoring class matches the correct label among the 100 classes.
+  Correctly classifying 7,500 images gives 75% accuracy for that trial.
 - Qualifying submissions are ranked by **mean preparation + training time**;
   the lowest time wins.
 - The complete evaluation on all 10,000 test images must finish within **5 seconds

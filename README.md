@@ -1,40 +1,61 @@
 # CIFAR-100 training speedrun
 
-Train a classifier from scratch on the 50,000 CIFAR-100 training images using one
-NVIDIA L40S 48GB. Qualifying submissions minimize **mean preparation + training
-time**, subject to **mean test accuracy >= 75%**, over 50 seeds.
-The default accuracy target is `0.75`. Accuracy values are fractions between 0 and 1;
-times are seconds. Inference does not contribute to the score.
+Build a training recipe that reaches **at least 75% average test accuracy** on
+CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40S
+48GB and 50 fresh training trials. Your score is the average **preparation +
+training time** across those trials; inference time is excluded.
 
-## Install and smoke test
+To enter, fork this repository, develop your recipe in `submissions/<your_team>/`,
+and open a pull request. Start with the steps below and read the full
+[competition rules](RULES.md) before developing your recipe.
 
-Python 3.12, PyTorch 2.4.0, torchvision 0.19.0. Install [uv](https://docs.astral.sh/uv/),
-then use the committed lockfile:
+## 1. Set up your development environment
+
+Fork this repository on GitHub, then clone your fork. Replace
+`YOUR_GITHUB_USERNAME` with your GitHub username:
+
+```bash
+git clone https://github.com/YOUR_GITHUB_USERNAME/CIFAR-100-speedrun.git
+cd CIFAR-100-speedrun
+```
+
+Install [uv](https://docs.astral.sh/uv/), then install the project's pinned Python
+environment and dependencies:
 
 ```bash
 uv sync --frozen
-uv run python -m benchmark.run --submission-path submission_template --device cpu --synthetic --n 2
-uv run pytest
 ```
 
-Linux x86-64 installs the CUDA 12.4 wheels; ARM/macOS use their available PyPI
-wheels for development. CPU and synthetic runs are explicitly nonofficial.
-Synthetic runs cannot qualify, even if a target is supplied.
+Run the remaining commands from the repository directory. The environment uses
+Python 3.12, PyTorch 2.4.0, and torchvision 0.19.0. Linux x86-64 installs the CUDA
+12.4 wheels; ARM/macOS use their available PyPI wheels for development.
 
-Download the dataset once, before running any submission:
+### Optional: check that your setup works
+
+This quick check, sometimes called a **smoke test**, runs the tiny example recipe
+twice on your CPU using generated images. It checks that the installed software
+can load a recipe, run it, and save results. It needs no GPU or dataset download.
 
 ```bash
-uv run python -m benchmark.data --root data
+uv run python -m benchmark.run --submission-path submission_template --device cpu --synthetic --n 2
 ```
 
-## Submit a PR
+A successful run ends with `"complete": true` and `"qualified": null`. The accuracy
+from these generated images is not meaningful. This is a setup check; measure
+CIFAR-100 accuracy and GPU training speed in step 3.
 
-Copy the template, implement your recipe, and open a PR adding only your team folder:
+## 2. Create your submission
+
+Copy the starter example into your team's folder. Replace `my_team` with your
+chosen team name in this and subsequent commands:
 
 ```bash
 cp -r submission_template submissions/my_team
-uv run python -m benchmark.run --submission my_team --n 1
 ```
+
+Edit `submissions/my_team/submission.py` to implement your training recipe. The
+example uses only 64 images and three learning steps to demonstrate the interface;
+you will need to replace that tiny demonstration to pursue 75% accuracy.
 
 Your `submission.py` provides three Python functions that the benchmark runner
 (the harness) calls for you:
@@ -60,90 +81,114 @@ Reuse the model structure between trials, but reset everything it learned.
 
 You implement the training recipe. The harness supplies the data and seeds,
 measures time, runs the test images through your returned model, and computes
-accuracy. You do not need to write the scoring or test loop. The template shows a
-complete example; no custom GPU kernels or compilation are required.
+accuracy. You do not need to write the scoring or test loop. Custom GPU kernels
+and compilation are optional.
 
-The template and [submission contract](submission_template/README.md) explain the
-input tensors, reset requirements, and classifier outputs. Relative imports such
-as `from .model import Classifier` work within your folder. Include custom kernel
-source there. Organizers freeze the PR's source and run it using the official
-harness; modifications outside your submission folder are ignored.
+The [submission guide](submission_template/README.md) explains the input tensors,
+reset requirements, and classifier outputs. Relative imports such as
+`from .model import Classifier` work within your folder. Supporting Python and
+custom kernel source belong in that folder too.
 
 You may change architecture, optimizer, precision, augmentations, schedule,
 training resolution, compilation, and kernels. Every trial starts fresh: no
 pretrained weights, external datasets, or learned state carried across trials.
 The submission runtime is the pinned PyTorch environment. Custom CUDA/Triton/C++
 kernels are allowed; alternative training frameworks and per-submission dependency
-installs are not supported in this version. Development automation is unrestricted.
-See [RULES.md](RULES.md) for the complete timing and evaluation rules.
+installs are not supported in this version. You can develop manually or use
+automation tools of your choice. See [RULES.md](RULES.md) for the complete rules.
 
-## Calibration and development
+## 3. Test and improve your recipe
 
-Use `--n 1`, `--n 10`, or `--n 20` for development. Recipe parameters are an optional
-JSON object supplied to `build()`; a submitted recipe should have working defaults.
+Use an NVIDIA GPU with CUDA support for training experiments. An L40S gives
+representative timings for official judging; CPU setup checks do not estimate
+L40S performance.
 
-```bash
-uv run python -m benchmark.run --submission-path /path/to/recipe --n 3 --params '{"epochs": 10}'
-```
-
-Development runs use the same 75% target by default. Use `--no-accuracy-target` to
-report timing and accuracy with `qualified: null`, or `--accuracy-target` to explore
-another target. Official runs enforce 75%. The convention is plain inference, with
-a **5-second deadline for the entire 10,000-image test pass per trial**. Record inference time separately.
-Exceeding the deadline stops that submission and marks it nonqualifying.
-
-Organizer calibration recipes may live in `.local/`, which is ignored by Git and
-excluded from the public image. The public template intentionally trains a trivial
-model for only three steps; its accuracy is not useful for choosing a threshold.
-
-## Official container
-
-The Dockerfile targets Linux x86-64, Ubuntu 22.04, CUDA 12.4.1, Python 3.12.
-Build on the GPU host (or with an amd64 builder) and download data with networking
-enabled before the competition run:
+Download CIFAR-100 once before your first real-data run:
 
 ```bash
-docker build --platform linux/amd64 -t cifar100-speedrun .
-docker run --rm -v "$PWD/data:/data" cifar100-speedrun python -m benchmark.data --root /data
+uv run python -m benchmark.data --root data
 ```
 
-Generate the organizer's seed file once, keep it private until submissions are
-frozen, and reuse that exact file for every team. This refuses to overwrite an
-existing file:
+Run one fresh training trial to see your recipe's accuracy and training time:
 
 ```bash
-uv run python - <<'PY'
-import json
-import secrets
-from benchmark.config import OFFICIAL_TRIALS
-
-seeds = secrets.SystemRandom().sample(range(2**32), OFFICIAL_TRIALS)
-with open("seeds.json", "x") as output:
-    json.dump(seeds, output)
-PY
+uv run python -m benchmark.run --submission my_team --n 1
 ```
 
-Run the frozen submission with that seed file:
+Use a small number of trials while iterating, then test promising recipes across
+more seeds to see how consistent they are:
 
 ```bash
-docker run --rm --gpus '"device=0"' --cpus 4 --network none --ipc=host \
-  -v "$PWD/data:/data:ro" -v "$PWD/results:/results" \
-  -v "$PWD/seeds.json:/seeds.json:ro" \
-  cifar100-speedrun python -m benchmark.run --submission my_team \
-  --official --seed-file /seeds.json --data-root /data --results-root /results
+uv run python -m benchmark.run --submission my_team --n 10
 ```
 
-The image must contain the frozen submission. Official mode verifies the GPU,
-software versions, OS, and network isolation. Pin the host/provider, CPU allocation,
-driver and power settings for all official measurements; record the container image
-digest. Official mode requires `--seed-file` for both individual submissions and
-`--all`, so separate invocations also use the same organizer-owned seeds.
-The Docker CPU quota covers all submission processes; the harness also fixes
-PyTorch's thread count to four. Keep that quota when changing launch commands.
+Development runs use the same 75% accuracy target as official judging. A completed
+run below that target reports `"qualified": false` and exits with code 1. The
+unchanged starter example normally produces this result on real data.
 
-Official runs require 50 successful trials and enforce the 75% target. Development
-results are never labeled official. The harness records software and hardware
-details, telemetry, seeds, parameters, the exact submitted source, and source hashes.
+For a diagnostic run that reports measurements without applying the accuracy
+target, add `--no-accuracy-target`. You can also pass optional JSON recipe settings
+to `build()` while experimenting:
+
+```bash
+uv run python -m benchmark.run --submission my_team --n 3 --params '{"epochs": 10}'
+```
+
+Your recipe decides which settings to support. Before submitting, make sure its
+defaults run the final recipe without extra command-line settings.
+
+### Read your results
+
+The runner prints each trial's accuracy and timing, then an overall summary.
+Each run also creates `results/<team>/<timestamp>-<id>/` containing:
+
+- `summary.json`: completion, mean accuracy, mean preparation + training time,
+  variability, and qualification;
+- `trials.jsonl`: each trial's accuracy, timings, and status;
+- `config.json`: settings, seeds, source hashes, environment, and untimed build time;
+- `source/`: a copy of the exact submission that was run;
+- `error.txt` when a worker raises an exception.
+
+In JSON results, accuracy is a fraction (`0.75` means 75%) and times are seconds.
+`mean_training_time` includes both preparation and training. Development results
+help you compare recipes; official scores come from the organizers' evaluation.
+
+A failed or interrupted run cannot qualify using only its successful trials.
+Ctrl-C stops the run and preserves partial results. Exit code 0 means a completed
+qualifying or diagnostic run, 1 means nonqualifying or incomplete, and 2 means
+invalid configuration. Interruptions use 130 (Ctrl-C) or 143 (SIGTERM).
+
+## 4. Open a pull request
+
+Commit and push your final recipe to your fork, then open a pull request to this
+repository adding only `submissions/my_team/` and its contents.
+
+Include the source for the model and training algorithm, with any supporting
+source files and configuration. The recipe must work with its default settings.
+Do not include trained weights, checkpoints, downloaded datasets, or local results.
+
+Organizers review and freeze your submission folder, then run it with the official
+harness. Changes outside your team folder are not part of the submitted recipe.
+
+## 5. How judging works
+
+- Every submission runs on one NVIDIA L40S 48GB in the fixed software environment.
+- Each recipe trains from scratch for the same 50 organizer-selected seeds.
+- All 50 trials must succeed, and average test accuracy must reach **at least 75%**.
+  There is no additional accuracy requirement for each individual trial.
+- Qualifying submissions are ranked by **mean preparation + training time**;
+  the lowest time wins.
+- The complete evaluation on all 10,000 test images must finish within **5 seconds
+  per trial**. Evaluation time is excluded from the score.
+
+See [RULES.md](RULES.md) for the full timing boundaries, resource limits, and
+allowed training methods. The organizers handle the official seed file and final
+50-trial evaluation.
+
+## Organizer information
+
+Instructions for the official Docker environment, calibration recipes, and
+benchmark maintenance checks are in [ORGANIZERS.md](ORGANIZERS.md).
 
 ## TO DO
 
@@ -159,36 +204,3 @@ Organizer tasks to complete before the first official evaluation:
   check that all trials succeed, mean accuracy reaches the fixed 75% target, and
   each full test pass finishes within 5 seconds. Earlier GPU calibration covered
   five trials; the complete 50-trial run remains outstanding.
-
-## Results
-
-Each run creates `results/<team>/<timestamp>-<id>/` containing:
-
-- `config.json`: settings, seeds, source hashes, environment and untimed build time;
-- `trials.jsonl`: raw accuracy, preparation/training/inference times and status;
-- `summary.json`: completion, means, sample standard deviations and qualification;
-- `source/`: the frozen source that was actually run;
-- `error.txt` when a worker raises an exception.
-
-A failed or interrupted run never qualifies on its successful subset. No failed seed
-is silently replaced. Logs from an incomplete run are retained. The supervisor kills
-a worker that exceeds its deadline, including when it hangs inside a classifier.
-Ctrl-C and SIGTERM stop the current worker and its subprocesses, preserve a
-nonqualifying partial result, and stop `--all` without launching another team.
-
-The CLI exits with 0 for completed qualifying or diagnostic runs, 1 for
-nonqualifying/incomplete runs, and 2 for invalid configuration. Interruptions exit
-with 130 (Ctrl-C) or 143 (SIGTERM). The minimal template normally exits with 1 on
-real data because it falls below 75%; use `--no-accuracy-target` for an API-only check.
-
-## Checks
-
-```bash
-uv run ruff check .
-uv run pytest
-```
-
-Tests cover scoring, shared official seeds, invalid outputs, evaluation mutation,
-repeat-seed resets, cancellation, and process termination on timeouts. Evaluation integrity tests
-run on both CPU and CUDA when a GPU is available; CUDA cases are skipped otherwise.
-Calibrate training time on the official GPU; CPU timings are not L40S estimates.

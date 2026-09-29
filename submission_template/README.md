@@ -93,6 +93,12 @@ The harness loads the raw dataset once before the timed trials.
 number of steps, batch sizes and stopping rule are up to you. Validation using a
 split of the training data is allowed and is charged to training time.
 
+If you use a DataLoader with spawned worker processes, define custom dataset
+classes and collate functions at module level in `submission.py` or a supporting
+module. Avoid lambdas and functions defined inside `train`, which Python cannot
+send to spawned workers. Relative imports work in those workers too. Finish all
+training work in subprocesses before returning the model.
+
 ## Classifier
 
 The evaluator supplies batches of RGB images shaped `[B, 3, 32, 32]`, float32,

@@ -1,6 +1,6 @@
 """One disposable process per submission; build is reused across its trials."""
 
-import importlib.util
+import importlib
 import os
 import random
 import sys
@@ -28,18 +28,16 @@ def seed_everything(seed: int) -> None:
 
 
 def load_submission(directory: Path):
-    name = "speedrun_submission"
-    spec = importlib.util.spec_from_file_location(
-        name,
-        directory / "submission.py",
-        submodule_search_locations=[str(directory)],
-    )
-    if spec is None or spec.loader is None:
-        raise ValueError("Cannot import submission.py")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
+    directory = directory.resolve()
+    os.environ["CIFAR100_SUBMISSION_DIR"] = str(directory)
+    name = "benchmark._submission"
+    # The import bridge also exists in fresh spawn interpreters. Clear any prior
+    # recipe and its relative imports when loading another recipe in this process.
+    for loaded in tuple(sys.modules):
+        if loaded == name or loaded.startswith(name + "."):
+            del sys.modules[loaded]
     sys.path.insert(0, str(directory))
-    spec.loader.exec_module(module)
+    module = importlib.import_module(name)
     for entrypoint in ("build", "prepare", "train"):
         if not callable(getattr(module, entrypoint, None)):
             raise ValueError(f"submission.py must define {entrypoint}()")
@@ -120,6 +118,9 @@ def run_worker(
             connection.send({"type": "trained", "trial": trial_index, "seed": seed, **timing})
             begin("eval")
             predictions, evaluation_time = predict(model, images, device, config.eval_batch_size)
+            # The recipe owns any reusable model in state. Do not keep an extra
+            # reference alive while the next trial creates and trains a new one.
+            del model
             connection.send(
                 {
                     "type": "trial",

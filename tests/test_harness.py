@@ -77,6 +77,95 @@ def test_real_worker_roundtrip_and_source_freezing(tmp_path):
     assert "submission.py" in config["submission_sha256"]
 
 
+def test_worker_releases_previous_model_before_preparing_next_trial(tmp_path):
+    recipe = make_recipe(tmp_path)
+    source = recipe / "submission.py"
+    source.write_text(
+        source.read_text()
+        + """
+import gc
+import weakref
+
+def build(context):
+    return {"previous_model": None, "previous_weight": None}
+
+def prepare(state, data, seed):
+    state.pop("model", None)
+    gc.collect()
+    for name in ("previous_model", "previous_weight"):
+        reference = state[name]
+        assert reference is None or reference() is None, name + " is still alive"
+    model = Model()
+    model.register_parameter("weight", nn.Parameter(torch.ones(1)))
+    state["model"] = model
+
+def train(state):
+    model = state["model"]
+    state["previous_model"] = weakref.ref(model)
+    state["previous_weight"] = weakref.ref(model.weight)
+    return model
+"""
+    )
+    _, summary = run(tmp_path, recipe)
+    assert summary["complete"] is True, summary["run_error"]
+    assert summary["successful_trials"] == 2
+
+
+def test_spawned_dataloader_imports_submission_and_relative_helpers(tmp_path):
+    recipe = make_recipe(tmp_path)
+    (recipe / "helper.py").write_text(
+        """
+import torch
+
+PREDICTED_CLASS = 7
+
+def collate_samples(samples):
+    return torch.stack(samples)
+"""
+    )
+    source = recipe / "submission.py"
+    source.write_text(
+        source.read_text()
+        + """
+from torch.utils.data import DataLoader, Dataset
+from .helper import collate_samples
+
+class Samples(Dataset):
+    def __init__(self, images):
+        self.images = images
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, index):
+        return self.images[index]
+
+def build(context):
+    return {}
+
+def prepare(state, data, seed):
+    state["images"] = data.images
+
+def train(state):
+    loader = DataLoader(
+        Samples(state["images"]), batch_size=8, num_workers=1,
+        multiprocessing_context="spawn", collate_fn=collate_samples,
+    )
+    count = 0
+    for batch in loader:
+        assert batch.shape[1:] == (3, 32, 32)
+        count += len(batch)
+    assert count == len(state["images"])
+    return Model()
+"""
+    )
+    directory, summary = run(tmp_path, recipe, trial_timeout=30)
+    assert summary["complete"] is True, summary["run_error"]
+    assert summary["successful_trials"] == 2
+    assert (directory / "source" / "submission.py").read_bytes() == source.read_bytes()
+    assert (directory / "source" / "helper.py").read_bytes() == (recipe / "helper.py").read_bytes()
+
+
 @pytest.mark.parametrize("phase", ["eval", "train", "build"])
 def test_watchdog_kills_a_hung_worker(tmp_path, phase):
     entrypoint = {"eval": "forward", "train": "train", "build": "build"}[phase]

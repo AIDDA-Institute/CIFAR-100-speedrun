@@ -7,6 +7,7 @@ name = "cifar100-speedrun"
 version = "0.1.0"
 description = "Organizer-owned CIFAR-100 training speedrun harness"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "numpy==1.26.4",

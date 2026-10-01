@@ -36,7 +36,7 @@ def test_invalid_target_rejected(target):
 
 def test_official_configuration_is_fixed():
     config = RunConfig(official=True)
-    assert config.n_trials == 50
+    assert config.n_trials == 40
     assert config.eval_timeout == 5
     config.validate()
     for kwargs in (

@@ -87,11 +87,11 @@ with each official run.
 Default:
 
 ```text
-N_TRIALS = 50
+N_TRIALS = 40
 ACCURACY_TARGET = 0.75
 ```
 
-Each submission is independently trained from scratch for 50 organizer-controlled seeds.
+Each submission is independently trained from scratch for 40 organizer-controlled seeds.
 
 For trial \(i\), record:
 
@@ -108,13 +108,13 @@ T_i = \text{training time}.
 Calculate:
 
 \[
-\bar A = \frac{1}{50}\sum_i A_i
+\bar A = \frac{1}{40}\sum_i A_i
 \]
 
 and
 
 \[
-\bar T = \frac{1}{50}\sum_i T_i.
+\bar T = \frac{1}{40}\sum_i T_i.
 \]
 
 A submission qualifies when:
@@ -139,9 +139,9 @@ For development, allow:
 --n 20
 ```
 
-so participants do not need to run 50 trials every time.
+so participants do not need to run 40 trials every time.
 
-Official evaluation uses 50.
+Official evaluation uses 40.
 
 ---
 
@@ -507,7 +507,7 @@ mean accuracy >= A*
 # 12. Seeding
 
 The organizer selects and freezes the official seed file. The harness requires
-exactly 50 distinct unsigned 32-bit seeds and records their order for each team.
+exactly 40 distinct unsigned 32-bit seeds and records their order for each team.
 
 Before every `prepare()` call reset:
 
@@ -609,7 +609,7 @@ Confirm that ordinary classifiers can evaluate the full test set comfortably wit
 
 Use repeated runs to measure accuracy and timing variance.
 
-Official evaluation uses 50 trials. Report the accuracy and timing variance alongside the mean.
+Official evaluation uses 40 trials. Report the accuracy and timing variance alongside the mean.
 
 ### D. Red-team the timing boundary
 
@@ -649,7 +649,7 @@ TEST_IMAGES         = 10,000
 NUM_CLASSES         = 100
 
 OFFICIAL_GPU        = NVIDIA L40 48GB
-N_TRIALS            = 50
+N_TRIALS            = 40
 EVAL_TIMEOUT_SECONDS = 5
 
 ACCURACY_TARGET     = 0.75

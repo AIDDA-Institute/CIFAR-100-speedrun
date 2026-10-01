@@ -2,7 +2,7 @@
 
 Build a training recipe that reaches **at least 75% average test accuracy** on
 CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40
-48GB and 50 fresh training trials. Your score is the average **preparation +
+48GB and 40 fresh training trials. Your score is the average **preparation +
 training time** across those trials; inference time is excluded.
 
 To enter, fork this repository, develop your recipe in `submissions/<your_team>/`,
@@ -210,8 +210,8 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 ## 5. How judging works
 
 - Every submission runs on one NVIDIA L40 48GB in the fixed software environment.
-- Each recipe trains from scratch for the same 50 organizer-selected seeds.
-- All 50 trials must succeed, and average test accuracy must reach **at least 75%**.
+- Each recipe trains from scratch for the same 40 organizer-selected seeds.
+- All 40 trials must succeed, and average test accuracy must reach **at least 75%**.
   There is no additional accuracy requirement for each individual trial.
 - Accuracy is **top-1**: the percentage of the 10,000 test images for which the
   model's highest-scoring class matches the correct label among the 100 classes.
@@ -223,7 +223,13 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 
 See [RULES.md](RULES.md) for the full timing boundaries, resource limits, and
 allowed training methods. The organizers handle the official seed file and final
-50-trial evaluation.
+40-trial evaluation.
+
+## License
+
+This repository's code and documentation are licensed under the [MIT License](LICENSE).
+Submissions are contributed under MIT; see [submission licensing](RULES.md#submission-licensing).
+Dependencies and the CIFAR-100 dataset retain their own terms.
 
 ## Organizer information
 
@@ -234,13 +240,11 @@ benchmark maintenance checks are in [ORGANIZERS.md](ORGANIZERS.md).
 
 Organizer tasks to complete before the first official evaluation:
 
-- [ ] **Verify the standard Docker GPU launch on the chosen L40 host.** Confirm
-  that the documented `docker run --gpus ...` command passes the environment checks
-  and runs a real-data trial. The earlier test host needed a GPU container startup
-  workaround; the standard launch still needs verification on the official host.
-- [ ] **Complete a 50-trial L40 calibration with the baseline recipe.** Run the
-  frozen recipe from scratch for 50 different seeds under the official conditions.
-  Record mean accuracy, mean preparation + training time, and their variability;
-  check that all trials succeed, mean accuracy reaches the fixed 75% target, and
-  each full test pass finishes within 5 seconds. Earlier calibration covered
-  five trials on an L40S; no L40 calibration has been completed yet.
+- [x] **Verify the standard Docker GPU launch on the chosen L40 host.** Passed on
+  1 October 2026, including environment checks, the four-CPU quota, network
+  isolation, and real-data evaluation.
+- [x] **Calibrate the baseline recipe on an L40.** All 50 trials completed on
+  1 October 2026 under the previous 50-trial format. Mean accuracy was 75.4844%
+  (standard deviation 0.2516 percentage points); mean preparation + training time
+  was 62.3165 seconds (standard deviation 0.1395 seconds). The slowest test pass
+  took 0.1813 seconds. Official evaluation now uses 40 trials.

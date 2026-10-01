@@ -1,7 +1,7 @@
 # Organizer guide
 
 This guide covers official evaluation and maintenance of the benchmark. For the
-contestant workflow, start with [README.md](README.md). Outstanding launch tasks
+contestant workflow, start with [README.md](README.md). Launch checks
 are listed in the README's [TO DO section](README.md#to-do).
 
 ## Official container
@@ -53,7 +53,7 @@ matching host and thermal conditions. Official mode requires `--seed-file` for
 individual submissions and `--all`; organizers must reuse the same file across
 separate runs.
 
-Official runs require 50 successful trials and enforce the 75% target. Development
+Official runs require 40 successful trials and enforce the 75% target. Development
 results are never labeled official. The harness records software and hardware
 details, telemetry, seeds, parameters, the exact submitted source, and source hashes.
 

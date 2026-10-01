@@ -66,7 +66,9 @@ def inspect_environment(config: RunConfig) -> dict:
         if len(devices) != 1 or devices[0] != OFFICIAL_GPU:
             raise ValueError(f"Official runs require exactly one {OFFICIAL_GPU}; found {devices}")
         if len(telemetry) != 1 or telemetry[0]["name"] != OFFICIAL_GPU:
-            raise ValueError("Official runs require nvidia-smi reporting exactly one L40S")
+            raise ValueError(
+                f"Official runs require nvidia-smi reporting exactly one {OFFICIAL_GPU}"
+            )
         if platform.python_version_tuple()[:2] != ("3", "12"):
             raise ValueError("Official runs require Python 3.12")
         if torch.__version__.split("+")[0] != "2.4.0":

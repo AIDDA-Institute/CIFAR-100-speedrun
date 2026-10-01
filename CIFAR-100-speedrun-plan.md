@@ -3,8 +3,8 @@
 The initial implementation is now in this repository. See [README.md](README.md)
 for setup and commands, [RULES.md](RULES.md) for concrete benchmark rules, and the
 [submission template](submission_template/README.md) for the implemented Python
-interface. Preliminary L40S calibration has been completed; the selected accuracy
-target is **75% mean test accuracy**.
+interface. Preliminary calibration was completed on an L40S; L40 calibration is
+still needed. The selected accuracy target is **75% mean test accuracy**.
 
 ## Goal
 
@@ -52,7 +52,7 @@ The organizer-controlled evaluator owns the test data and evaluation.
 
 Official hardware:
 
-- **1× NVIDIA L40S 48GB**
+- **1× NVIDIA L40 48GB**
 - Single GPU only
 - No MIG
 - Same provider / machine class for all official measurements where possible
@@ -251,13 +251,13 @@ Evaluation is **not included in training time**.
 
 ### Evaluation time limit
 
-Use an organizer-controlled limit of **5 seconds per trial** to evaluate all 10,000 test images on the official L40S. This is a limit on the complete test pass, not on each batch.
+Use an organizer-controlled limit of **5 seconds per trial** to evaluate all 10,000 test images on the official L40. This is a limit on the complete test pass, not on each batch.
 
 Measure evaluation wall time separately, including evaluation-specific preprocessing, device transfers, any lazy compilation, inference, and the final CUDA synchronization. Dataset download and initial loading happen before the trials. Evaluation time is recorded for diagnostics and enforcement only; it does not affect the training-time score.
 
 Enforce the deadline with an organizer-controlled watchdog. If it is exceeded, stop that submission's official run, record the trial as `eval_timeout`, preserve the results collected so far, and mark the submission as not qualified. Do not drop the failed trial from the results or replace its seed to obtain a qualifying score.
 
-Calibration confirmed ample headroom for the tested classifiers. Submissions cannot override the official limit.
+Earlier L40S calibration found ample headroom for the tested classifiers. Confirm the limit on the official L40 before accepting submissions. Submissions cannot override the official limit.
 
 ---
 
@@ -589,7 +589,7 @@ Once the harness is functional:
 
 ### A. Measure time to the selected accuracy threshold
 
-Run one or more sensible CIFAR-100 from-scratch training recipes on the official L40S.
+Run one or more sensible CIFAR-100 from-scratch training recipes on the official L40.
 
 Measure the time/accuracy frontier.
 
@@ -648,7 +648,7 @@ TRAIN_IMAGES        = 50,000
 TEST_IMAGES         = 10,000
 NUM_CLASSES         = 100
 
-OFFICIAL_GPU        = NVIDIA L40S 48GB
+OFFICIAL_GPU        = NVIDIA L40 48GB
 N_TRIALS            = 50
 EVAL_TIMEOUT_SECONDS = 5
 

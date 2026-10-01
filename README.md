@@ -1,7 +1,7 @@
 # CIFAR-100 training speedrun
 
 Build a training recipe that reaches **at least 75% average test accuracy** on
-CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40S
+CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40
 48GB and 50 fresh training trials. Your score is the average **preparation +
 training time** across those trials; inference time is excluded.
 
@@ -136,9 +136,9 @@ automation tools of your choice. See [RULES.md](RULES.md) for the complete rules
 
 Run **all commands in this section on the GPU machine**, using your latest recipe
 code there. If you edit files on your laptop, copy or commit/push and pull those
-changes onto the GPU machine before running them. An NVIDIA L40S gives
+changes onto the GPU machine before running them. An NVIDIA L40 gives
 representative timings for official judging; CPU setup checks do not estimate
-L40S performance.
+L40 performance.
 
 Download CIFAR-100 once before your first real-data run:
 
@@ -209,7 +209,7 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 
 ## 5. How judging works
 
-- Every submission runs on one NVIDIA L40S 48GB in the fixed software environment.
+- Every submission runs on one NVIDIA L40 48GB in the fixed software environment.
 - Each recipe trains from scratch for the same 50 organizer-selected seeds.
 - All 50 trials must succeed, and average test accuracy must reach **at least 75%**.
   There is no additional accuracy requirement for each individual trial.
@@ -234,13 +234,13 @@ benchmark maintenance checks are in [ORGANIZERS.md](ORGANIZERS.md).
 
 Organizer tasks to complete before the first official evaluation:
 
-- [ ] **Verify the standard Docker GPU launch on the chosen L40S host.** Confirm
+- [ ] **Verify the standard Docker GPU launch on the chosen L40 host.** Confirm
   that the documented `docker run --gpus ...` command passes the environment checks
   and runs a real-data trial. The earlier test host needed a GPU container startup
   workaround; the standard launch still needs verification on the official host.
-- [ ] **Complete a 50-trial GPU calibration with the baseline recipe.** Run the
+- [ ] **Complete a 50-trial L40 calibration with the baseline recipe.** Run the
   frozen recipe from scratch for 50 different seeds under the official conditions.
   Record mean accuracy, mean preparation + training time, and their variability;
   check that all trials succeed, mean accuracy reaches the fixed 75% target, and
-  each full test pass finishes within 5 seconds. Earlier GPU calibration covered
-  five trials; the complete 50-trial run remains outstanding.
+  each full test pass finishes within 5 seconds. Earlier calibration covered
+  five trials on an L40S; no L40 calibration has been completed yet.

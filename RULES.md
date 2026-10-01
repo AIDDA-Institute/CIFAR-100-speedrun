@@ -20,7 +20,7 @@ trials, or outliers may be dropped.
 
 ### Environment and permitted methods
 
-Official runs use one NVIDIA L40S 48GB, no GPU partitioning (MIG), the
+Official runs use one NVIDIA L40 48GB, no GPU partitioning (MIG), the
 [pinned container](Dockerfile), a four-CPU container quota, four PyTorch CPU
 threads, and networking disabled.
 

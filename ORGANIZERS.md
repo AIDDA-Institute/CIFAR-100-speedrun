@@ -98,4 +98,5 @@ uv run pytest
 Tests cover scoring, shared official seeds, invalid outputs, evaluation mutation,
 repeat-seed resets, cancellation, and process termination on timeouts. Evaluation integrity tests
 run on both CPU and CUDA when a GPU is available; CUDA cases are skipped otherwise.
-Calibrate training time on the official GPU; CPU timings are not L40S estimates.
+Calibrate training time on the official L40; CPU timings and previous L40S results
+are not L40 estimates.

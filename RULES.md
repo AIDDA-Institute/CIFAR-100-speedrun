@@ -1,119 +1,113 @@
 # Competition rules
 
-## Score
+All rules apply whether or not the harness detects a violation. Passing its
+checks does not replace source review. A failed check can also be an
+implementation error; it is not by itself evidence of cheating.
 
-For 50 organizer-selected distinct seeds, train independently from scratch on
-the standard CIFAR-100 training split. For each of the 10,000 test images, the
-model scores the 100 possible classes. Its highest-scoring class is its one
-prediction ("top-1"). Accuracy is the percentage of those predictions that match
-the correct labels: 7,500 correct predictions out of 10,000 means 75% accuracy.
-We use the 100 specific categories ("fine classes"), such as apple or tiger,
-rather than CIFAR-100's 20 broader groups ("coarse classes").
+## 1. Competition format
 
-A complete submission qualifies when its mean accuracy across the 50 trials
-reaches **75%**. Qualifiers are ranked by mean
-`prepare_time + train_time`. Accuracy is averaged across trials; there is no
-additional per-trial accuracy requirement. No best-seed selection or outlier removal.
-Official CLI runs require an organizer-owned seed file, reused unchanged for every
-team. The saved configuration records the exact ordered list.
+### Task and score
 
-The selected threshold is **0.75** and official runs enforce it. Development runs
-may explore another target or disable qualification reporting. Freeze the environment,
-inference convention, and limits before accepting official submissions.
+Train from scratch on CIFAR-100's 50,000 training images. Test accuracy is top-1
+on all 10,000 test images: the percentage whose highest-scoring class matches the
+correct label among the 100 fine classes.
 
-## Timing
+Every submission uses the same ordered list of 50 distinct organizer-selected
+seeds. All 50 trials must succeed, and their mean test accuracy must be **at least
+75%**. There is no per-trial accuracy threshold. Qualifying submissions are ranked
+by mean `prepare_time + train_time`; the lowest time wins. No seeds, failed
+trials, or outliers may be dropped.
 
-The harness owns synchronized wall-clock boundaries. Build and module import are
-untimed once per submission process. Each trial charges parameter/buffer reset,
-optimizer reset, input transfer, casting, preprocessing, whitening, augmentation,
-training, and any fitting or data-derived state construction. Raw dataset download
-and CPU loading are organizer setup outside the score. The official input location
-is CPU memory for every fresh training run.
+### Environment and permitted methods
 
-Compilation, allocation, autotuning and CUDA graph capture on synthetic inputs
-may happen during build. Synthetic warmup may exercise forward, backward, and
-optimizer code, but its changed state must be discarded by prepare. No real
-training/test data, learned weights or trial seed may be used in build. Deferred
-compilation occurring in prepare/train is charged there. Compilation happening
-during inference is subject to the evaluation deadline.
+Official runs use one NVIDIA L40S 48GB, no GPU partitioning (MIG), the
+[pinned container](Dockerfile), a four-CPU container quota, four PyTorch CPU
+threads, and networking disabled.
 
-There is a synchronization between prepare and train to record both durations;
-its overhead is included in the total. The final synchronization waits for all
-CUDA work, including other streams, before stopping the training timer. All CPU
-threads/subprocesses doing training work must also finish before train returns.
+Submit model, training, and supporting source in `submissions/<team>/`. The recipe
+must run in the pinned PyTorch 2.4.0 environment without installing packages or
+changing dependencies. Other training runtimes, including JAX and TensorFlow,
+are not allowed. `torch.compile` and custom CUDA/Triton/C++ source are allowed.
 
-## Evaluation and limits
+You may choose the architecture, optimizer, loss, schedule, augmentations,
+precision, resolution, and kernels. Any development tools, including autoresearch
+frameworks, are allowed. Nondeterministic CUDA kernels are allowed; identical seeds
+need not produce bitwise-identical results.
 
-Use plain single-view inference with the input convention in the
-[submission contract](submission_template/README.md). No internal TTA, fitting,
-test-time adaptation, test-set statistics, training-data lookup, or state changes
-during evaluation. Registered parameters and buffers are checked before and after;
-other state and custom code remain subject to source review.
+### Timing and inference
 
-Limits per submission/trial:
+Dataset download and raw CPU loading are outside the score. Each trial starts
+with training data in CPU memory. The score includes resets, GPU transfers,
+casting, preprocessing (including whitening), augmentation, and all fitting.
+The harness synchronizes CUDA between `prepare` and `train`, and after `train`;
+these waits count toward the score.
 
 | Phase | Limit | Included in score? |
 | --- | ---: | --- |
-| Build, once | 600 seconds | No |
-| Prepare + train, each trial | 600 seconds | Yes |
+| Module import + `build`, once | 600 seconds | No |
+| `prepare` + `train`, each trial | 600 seconds | Yes |
 | Full test-set inference, each trial | 5 seconds | No |
 
-These are organizer-owned resource limits.
-Official submissions cannot raise them. The inference watchdog also covers model
-state checks, preprocessing, transfers and synchronization. Record evaluation time
-separately. The worker is terminated on timeout; sleeping inside forward cannot
-evade the deadline. Intentional sleeps/cooldowns, host selection, and manipulation
-of clocks, power settings or the harness are prohibited.
+Untimed setup may allocate memory, compile, autotune, capture CUDA graphs, and
+warm up on synthetic inputs, including synthetic forward/backward/optimizer
+steps. Reset all state changed by warmup before each trial. Compilation deferred
+to preparation, training, or inference counts against that phase's limit.
 
-An exception, OOM, timeout, invalid/nonfinite output, detected evaluation mutation,
-or incomplete run makes the submission nonqualifying. Preserve its failed trial
-and prior raw results. Never qualify from surviving trials alone. An independently
-verified infrastructure failure may be rerun only by an organizer restarting the
-entire frozen submission with the same seeds and retaining both attempts' logs;
-no selective retries chosen using accuracy or training time.
+Evaluation uses one view per image, batches of 1024 (with a smaller final batch),
+and the [classifier interface](submission_template/README.md#classifier).
+Its deadline includes model state checks, preprocessing, transfers, lazy
+compilation, and synchronization.
 
-## Allowed development, prohibited learned state
+## 2. Automatic harness checks
 
-Any autoresearch framework is allowed in development. Submit source for the final
-model and training recipe. Models, optimizers, losses, schedules, augmentation,
-precision, resolution, custom CUDA/Triton/C++ and systems optimizations may change.
-The submitted training and inference code must run in the pinned PyTorch 2.4.0
-environment. `torch.compile` is allowed. JAX, TensorFlow and other training runtimes
-are not supported in this version. Submissions cannot change pinned dependencies
-or install additional packages; include supporting Python and kernel source in
-the team folder. These runtime restrictions do not limit development orchestration.
+Official runs apply the following checks. Development runs may use different
+trial counts, accuracy targets, devices, and limits.
 
-No pretrained weights/models, prior checkpoints, external training datasets,
-pretrained features, constants encoding learned weights, hard-coded test
-predictions, or learned state across official trials. Architecture and scalar
-hyperparameters found during development are allowed; learned model tensors are not.
+| Check | What the harness checks or rejects |
+| --- | --- |
+| Official settings | Requires CUDA, real-data mode, 50 trials, the fixed accuracy target and limits, evaluation batch size 1024, and four PyTorch threads. Requires `--seed-file` with 50 distinct unsigned 32-bit seeds and checks reported trial order. |
+| Environment | Checks reported GPU count/model and Ubuntu, Python, PyTorch, torchvision, and CUDA versions. Rejects non-loopback network interfaces. |
+| Submission interface | Requires callable `build`, `prepare`, and `train`; rejects symlinks inside the submission folder. `train` must return a `torch.nn.Module`. |
+| Predictions | Requires a finite floating-point tensor of shape `[B, 100]` for each batch of `B` images, and one prediction per test image. |
+| Evaluation state | Compares registered parameters and buffers before `model.eval()` and after inference. Rejects changes in their names, values, shapes, dtypes, devices, or layouts. |
+| Completion and score | Stops the worker on timeout. Exceptions, out-of-memory errors, invalid outputs, detected state changes, or incomplete trials prevent qualification. A complete run below the accuracy target does not qualify. |
 
-Training may use only the training split. Official test labels stay in the
-organizer's supervisor. The test images are supplied only for frozen inference;
-do not retain them for later trials. The standard test set is public, and local
-development reports its accuracy, as is conventional for this speedrun. This is
-not a claim of a new hidden test set. Do not encode test labels, fit on the test set,
-or use test accuracy to choose a stopping point within an official trial.
+The state comparison does not inspect ordinary Python attributes, global
+variables, or files, and cannot detect temporary changes restored before the
+final comparison. The harness does not set the container CPU quota or disable
+networking. Organizers must apply those limits when launching the container.
 
-## Environment and audit
+## 3. Prohibited conduct requiring review
 
-Use one L40S, no MIG, the pinned container, a four-CPU container quota, four PyTorch
-CPU threads, and networking disabled. Keep host/provider, CPU allocation, driver,
-GPU power and clock policy consistent between teams. Record telemetry and the container digest. Use the same
-organizer seed list across entries; keep it private until submissions are frozen.
-Compare close results under matching host and thermal conditions.
+The harness cannot reliably detect all of the following. Finalists require source
+inspection under the [organizer review procedure](ORGANIZERS.md#review-and-final-results).
 
-Reset all recipe state per trial, including custom RNGs. Seeding does not imply
-bitwise determinism: nondeterministic CUDA kernels are permitted for speed.
-Check that repeat runs, reordered trials, and fresh containers produce stable
-distributions. A submission must not depend on results or learned state from
-previous trials.
+- **Prior learning or external data:** no pretrained models, weights, features,
+  checkpoints, external training datasets, or constants encoding learned model
+  tensors. Architectures and scalar hyperparameters found during development
+  are allowed.
+- **Learning carried between trials:** reset parameters, buffers, optimizer,
+  scheduler, gradient scaler, moving averages, and custom random generators.
+  Do not preserve learned values or use previous trial results to change the
+  next trial. Reusing allocated memory and compiled code is allowed.
+- **Work outside the timer:** no real dataset access, learned weights, or trial
+  seed use during module import or `build`. All work using real training data
+  belongs in `prepare` or `train`. Training threads and subprocesses must finish
+  before `train` returns.
+- **Test-set use:** do not fit on test images or labels, encode test answers, or
+  use test accuracy to choose a stopping point within an official trial. During
+  judging, access test images only through the harness's inference calls; do not
+  read test files or retain test images for later trials. The test set is public,
+  and using reported test accuracy to compare recipes during development is allowed.
+- **Extra computation during evaluation:** no additional augmented views
+  (test-time augmentation), fitting, adaptation, test-set statistics, training-data
+  lookup, or model state changes, including state outside registered tensors.
+  Predictions must not depend on other test images or their order.
+- **Measurement interference:** no changes to the harness, clocks, GPU power
+  settings, or GPU clock settings; no intentional sleeps, cooldowns, or host
+  selection to influence scores.
 
-The harness is a measurement tool with process timeouts and integrity checks, not
-a security sandbox. Keeping test labels out of the submission API does not make
-dataset files inaccessible to arbitrary Python code. Direct access to test data
-outside frozen inference is prohibited and remains subject to source inspection.
-Network isolation is enforced by the execution environment.
-Finalists require source inspection, including state stored outside registered
-model tensors. Only the frozen submission folder is imported into the organizer's
-trusted repository; participant changes to benchmark files have no effect.
+Test labels are excluded from the submission API, but the harness does not block
+access to dataset files or isolate malicious Python code. Organizers run only
+the frozen submission folder in their trusted repository; participant changes
+to benchmark files are not used.

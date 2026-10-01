@@ -41,17 +41,41 @@ docker run --rm --gpus '"device=0"' --cpus 4 --network none --ipc=host \
   --official --seed-file /seeds.json --data-root /data --results-root /results
 ```
 
-The image must contain the frozen submission. Official mode verifies the GPU,
-software versions, OS, and network isolation. Pin the host/provider, CPU allocation,
-driver and power settings for all official measurements; record the container image
-digest. Official mode requires `--seed-file` for both individual submissions and
-`--all`, so separate invocations also use the same organizer-owned seeds.
-The Docker CPU quota covers all submission processes; the harness also fixes
-PyTorch's thread count to four. Keep that quota when changing launch commands.
+The image must contain the frozen submission. Official mode checks reported GPU
+count/model, software versions, and OS, and rejects non-loopback network
+interfaces. Docker's `--network none` enforces network isolation; `--cpus 4`
+enforces the CPU quota across all submission processes. The harness sets
+PyTorch's thread count to four but does not verify the container CPU quota.
+
+Use the same host/provider, CPU allocation, driver, and GPU power/clock policy
+for all entries; record the container image digest. Compare close results under
+matching host and thermal conditions. Official mode requires `--seed-file` for
+individual submissions and `--all`; organizers must reuse the same file across
+separate runs.
 
 Official runs require 50 successful trials and enforce the 75% target. Development
 results are never labeled official. The harness records software and hardware
 details, telemetry, seeds, parameters, the exact submitted source, and source hashes.
+
+## Review and final results
+
+Freeze the environment, inference convention, and limits before accepting official
+submissions. Import only each team's frozen submission folder into the trusted
+repository; do not apply participant changes to benchmark files.
+
+Review finalists against [the prohibited conduct rules](RULES.md#3-prohibited-conduct-requiring-review).
+Inspect module import, `build`, `prepare`, `train`, inference, and supporting
+Python/kernel source. Check the origin of weights and constants, dataset access,
+and state held in ordinary attributes, global variables, files, or subprocesses.
+
+Check trial independence with repeat runs, reordered seeds, and fresh containers.
+Investigate accuracy or timing changes tied to trial order or earlier runs.
+Bitwise-identical results are not required.
+
+Keep failed trials and all raw results. Only an independently verified
+infrastructure failure permits a rerun: restart the entire frozen submission
+with the same seeds and retain both attempts' logs. Never retry or select trials
+based on their accuracy or training time.
 
 ## Calibration recipes
 

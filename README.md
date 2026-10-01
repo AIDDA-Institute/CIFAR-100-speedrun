@@ -6,8 +6,10 @@ CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40S
 training time** across those trials; inference time is excluded.
 
 To enter, fork this repository, develop your recipe in `submissions/<your_team>/`,
-and open a pull request. Start with the steps below and read the full
-[competition rules](RULES.md) before developing your recipe.
+and open a pull request. Start with the steps below, then read the rules:
+[competition format](RULES.md#1-competition-format),
+[automatic harness checks](RULES.md#2-automatic-harness-checks), and
+[prohibited conduct requiring review](RULES.md#3-prohibited-conduct-requiring-review).
 
 ## 1. Set up your development environment
 

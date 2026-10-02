@@ -237,16 +237,20 @@ Dependencies and the CIFAR-100 dataset retain their own terms.
 Instructions for the official Docker environment, calibration recipes, and
 benchmark maintenance checks are in [ORGANIZERS.md](ORGANIZERS.md).
 
-## TO DO
+## Verified A100 setup
 
-Organizer tasks to complete before the first official evaluation:
+On 2 October 2026, a ResNet9-style baseline (40 epochs, width 64) completed two
+real CIFAR-100 trials on an NVIDIA A100 80GB PCIe using the repository's Dockerfile:
 
-- [ ] **Verify Docker on the chosen A100 80GB PCIe host.** Check the GPU model,
-  disabled MIG mode, four-CPU quota, network isolation, and a real-data trial.
-- [ ] **Calibrate the baseline on the A100 80GB PCIe.** Run 40 trials; record mean
-  accuracy, mean preparation + training time, and their standard deviations.
-  Check that all trials succeed, mean accuracy reaches 75%, and every full test
-  pass finishes within 5 seconds.
+- Mean accuracy: **75.36%** (individual trials: 75.56% and 75.16%).
+- Mean preparation + training time: **59.30 seconds**.
+- Mean inference time: **0.117 seconds**; slowest test pass: **0.132 seconds**,
+  within the 5-second limit.
+
+Standard Docker GPU launch, disabled MIG mode, the four-CPU quota, and network
+isolation all passed. This two-trial pilot completes the launch check; no further
+baseline calibration is required. It is a development result, not an official
+score. Official judging still uses **40 trials per submission**.
 
 ### Previous hardware calibration
 
@@ -255,4 +259,4 @@ format. Mean accuracy was 75.4844% (standard deviation 0.2516 percentage points)
 mean preparation + training time was 62.3165 seconds (standard deviation 0.1395
 seconds). The slowest test pass took 0.1813 seconds. Docker GPU access, the CPU
 quota, and network isolation passed on that host. These are L40 measurements;
-A100 calibration has not been run.
+the A100 pilot results are recorded above.

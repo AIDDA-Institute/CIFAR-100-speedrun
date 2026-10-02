@@ -1,8 +1,8 @@
 # Organizer guide
 
 This guide covers official evaluation and maintenance of the benchmark. For the
-contestant workflow, start with [README.md](README.md). Launch checks
-are listed in the README's [TO DO section](README.md#to-do).
+contestant workflow, start with [README.md](README.md). Completed GPU launch
+checks and pilot results are recorded under [Verified A100 setup](README.md#verified-a100-setup).
 
 ## Official container
 
@@ -100,5 +100,6 @@ uv run pytest
 Tests cover scoring, shared official seeds, invalid outputs, evaluation mutation,
 repeat-seed resets, cancellation, and process termination on timeouts. Evaluation integrity tests
 run on both CPU and CUDA when a GPU is available; CUDA cases are skipped otherwise.
-Calibrate training time and the 5-second inference limit on the official A100 80GB
-PCIe. CPU timings and previous L40/L40S results are not A100 estimates.
+If the harness or official environment changes, recheck GPU execution and the
+5-second inference limit on the official A100 80GB PCIe. CPU timings and previous
+L40/L40S results are not A100 estimates.

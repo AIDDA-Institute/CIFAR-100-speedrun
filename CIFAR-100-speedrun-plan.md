@@ -3,9 +3,10 @@
 The initial implementation is now in this repository. See [README.md](README.md)
 for setup and commands, [RULES.md](RULES.md) for concrete benchmark rules, and the
 [submission template](submission_template/README.md) for the implemented Python
-interface. A 50-trial calibration was completed on the previous L40 hardware;
-A100 80GB PCIe calibration is still needed. The selected accuracy target is
-**75% mean test accuracy**.
+interface. The A100 80GB PCIe launch check is complete; see the
+[two-trial pilot results](README.md#verified-a100-setup). No further baseline
+calibration is required. The selected accuracy target is **75% mean test accuracy**,
+and official judging uses **40 trials per submission**.
 
 ## Goal
 
@@ -258,7 +259,8 @@ Measure evaluation wall time separately, including evaluation-specific preproces
 
 Enforce the deadline with an organizer-controlled watchdog. If it is exceeded, stop that submission's official run, record the trial as `eval_timeout`, preserve the results collected so far, and mark the submission as not qualified. Do not drop the failed trial from the results or replace its seed to obtain a qualifying score.
 
-Earlier L40 calibration found ample headroom for the tested classifier. Confirm the limit on the official A100 80GB PCIe before judging submissions. Submissions cannot override the official limit.
+The two-trial A100 80GB PCIe pilot completed each full test pass within 0.132 seconds,
+below the 5-second limit. Submissions cannot override the official limit.
 
 ---
 
@@ -582,11 +584,12 @@ It should not establish a meaningful speedrun baseline.
 
 ---
 
-# 16. Tests to Run Once the Repository Exists
+# 16. Benchmark Validation
 
 The selected target is \(A^* = 0.75\).
 
-Once the harness is functional:
+The two-trial A100 pilot completes launch validation. The following checks guide
+future changes to the harness or official environment.
 
 ### A. Measure time to the selected accuracy threshold
 
@@ -661,5 +664,5 @@ PYTORCH              = 2.4.0
 TORCHVISION          = 0.19.0
 ```
 
-The selected accuracy target is 75%. Calibration measures the time needed to reach
-it using plain inference and validates the remaining resource limits.
+The selected accuracy target is 75%. The completed A100 pilot measured the time
+needed to reach it using plain inference and checked the configured resource limits.

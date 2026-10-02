@@ -7,7 +7,8 @@ are listed in the README's [TO DO section](README.md#to-do).
 ## Official container
 
 The Dockerfile targets Linux x86-64, Ubuntu 22.04, CUDA 12.4.1, Python 3.12.
-Build on the GPU host (or with an amd64 builder) and download data with networking
+Official judging requires one full NVIDIA A100 80GB PCIe with MIG disabled.
+Build on that GPU host (or with an amd64 builder) and download data with networking
 enabled before the competition run:
 
 ```bash
@@ -41,9 +42,10 @@ docker run --rm --gpus '"device=0"' --cpus 4 --network none --ipc=host \
   --official --seed-file /seeds.json --data-root /data --results-root /results
 ```
 
-The image must contain the frozen submission. Official mode checks reported GPU
-count/model, software versions, and OS, and rejects non-loopback network
-interfaces. Docker's `--network none` enforces network isolation; `--cpus 4`
+The image must contain the frozen submission. Official mode requires PyTorch and
+`nvidia-smi` to report exactly one `NVIDIA A100 80GB PCIe`, and `nvidia-smi` to report
+`mig.mode.current` as `Disabled`. It checks software versions and OS, and rejects
+non-loopback network interfaces. Docker's `--network none` enforces network isolation; `--cpus 4`
 enforces the CPU quota across all submission processes. The harness sets
 PyTorch's thread count to four but does not verify the container CPU quota.
 
@@ -98,5 +100,5 @@ uv run pytest
 Tests cover scoring, shared official seeds, invalid outputs, evaluation mutation,
 repeat-seed resets, cancellation, and process termination on timeouts. Evaluation integrity tests
 run on both CPU and CUDA when a GPU is available; CUDA cases are skipped otherwise.
-Calibrate training time on the official L40; CPU timings and previous L40S results
-are not L40 estimates.
+Calibrate training time and the 5-second inference limit on the official A100 80GB
+PCIe. CPU timings and previous L40/L40S results are not A100 estimates.

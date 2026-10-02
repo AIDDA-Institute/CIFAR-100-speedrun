@@ -20,9 +20,11 @@ trials, or outliers may be dropped.
 
 ### Environment and permitted methods
 
-Official runs use one NVIDIA L40 48GB, no GPU partitioning (MIG), the
+Official runs use one NVIDIA A100 80GB PCIe, with MIG disabled, the
 [pinned container](Dockerfile), a four-CPU container quota, four PyTorch CPU
 threads, and networking disabled.
+
+The A100 40GB and A100 SXM variants are not accepted for official judging.
 
 Submit model, training, and supporting source in `submissions/<team>/`. The recipe
 must run in the pinned PyTorch 2.4.0 environment without installing packages or
@@ -73,7 +75,7 @@ trial counts, accuracy targets, devices, and limits.
 | Check | What the harness checks or rejects |
 | --- | --- |
 | Official settings | Requires CUDA, real-data mode, 40 trials, the fixed accuracy target and limits, evaluation batch size 1024, and four PyTorch threads. Requires `--seed-file` with 40 distinct unsigned 32-bit seeds and checks reported trial order. |
-| Environment | Checks reported GPU count/model and Ubuntu, Python, PyTorch, torchvision, and CUDA versions. Rejects non-loopback network interfaces. |
+| Environment | Requires exactly one NVIDIA A100 80GB PCIe reported by PyTorch and `nvidia-smi`, with MIG reported as disabled. Checks Ubuntu, Python, PyTorch, torchvision, and CUDA versions. Rejects non-loopback network interfaces. |
 | Submission interface | Requires callable `build`, `prepare`, and `train`; rejects symlinks inside the submission folder. `train` must return a `torch.nn.Module`. |
 | Predictions | Requires a finite floating-point tensor of shape `[B, 100]` for each batch of `B` images, and one prediction per test image. |
 | Evaluation state | Compares registered parameters and buffers before `model.eval()` and after inference. Rejects changes in their names, values, shapes, dtypes, devices, or layouts. |

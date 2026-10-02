@@ -1,8 +1,8 @@
 # CIFAR-100 training speedrun
 
 Build a training recipe that reaches **at least 75% average test accuracy** on
-CIFAR-100 in as little time as possible. Official judging uses one NVIDIA L40
-48GB and 40 fresh training trials. Your score is the average **preparation +
+CIFAR-100 in as little time as possible. Official judging uses one NVIDIA A100
+80GB PCIe and 40 fresh training trials. Your score is the average **preparation +
 training time** across those trials; inference time is excluded.
 
 To enter, fork this repository, develop your recipe in `submissions/<your_team>/`,
@@ -136,9 +136,9 @@ automation tools of your choice. See [RULES.md](RULES.md) for the complete rules
 
 Run **all commands in this section on the GPU machine**, using your latest recipe
 code there. If you edit files on your laptop, copy or commit/push and pull those
-changes onto the GPU machine before running them. An NVIDIA L40 gives
+changes onto the GPU machine before running them. An NVIDIA A100 80GB PCIe gives
 representative timings for official judging; CPU setup checks do not estimate
-L40 performance.
+A100 performance.
 
 Download CIFAR-100 once before your first real-data run:
 
@@ -209,7 +209,8 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 
 ## 5. How judging works
 
-- Every submission runs on one NVIDIA L40 48GB in the fixed software environment.
+- Every submission runs on one NVIDIA A100 80GB PCIe, with MIG disabled, in the
+  fixed software environment.
 - Each recipe trains from scratch for the same 40 organizer-selected seeds.
 - All 40 trials must succeed, and average test accuracy must reach **at least 75%**.
   There is no additional accuracy requirement for each individual trial.
@@ -240,11 +241,18 @@ benchmark maintenance checks are in [ORGANIZERS.md](ORGANIZERS.md).
 
 Organizer tasks to complete before the first official evaluation:
 
-- [x] **Verify the standard Docker GPU launch on the chosen L40 host.** Passed on
-  1 October 2026, including environment checks, the four-CPU quota, network
-  isolation, and real-data evaluation.
-- [x] **Calibrate the baseline recipe on an L40.** All 50 trials completed on
-  1 October 2026 under the previous 50-trial format. Mean accuracy was 75.4844%
-  (standard deviation 0.2516 percentage points); mean preparation + training time
-  was 62.3165 seconds (standard deviation 0.1395 seconds). The slowest test pass
-  took 0.1813 seconds. Official evaluation now uses 40 trials.
+- [ ] **Verify Docker on the chosen A100 80GB PCIe host.** Check the GPU model,
+  disabled MIG mode, four-CPU quota, network isolation, and a real-data trial.
+- [ ] **Calibrate the baseline on the A100 80GB PCIe.** Run 40 trials; record mean
+  accuracy, mean preparation + training time, and their standard deviations.
+  Check that all trials succeed, mean accuracy reaches 75%, and every full test
+  pass finishes within 5 seconds.
+
+### Previous hardware calibration
+
+On 1 October 2026, the baseline completed all 50 trials under the previous L40
+format. Mean accuracy was 75.4844% (standard deviation 0.2516 percentage points);
+mean preparation + training time was 62.3165 seconds (standard deviation 0.1395
+seconds). The slowest test pass took 0.1813 seconds. Docker GPU access, the CPU
+quota, and network isolation passed on that host. These are L40 measurements;
+A100 calibration has not been run.

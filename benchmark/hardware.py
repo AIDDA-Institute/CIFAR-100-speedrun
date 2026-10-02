@@ -22,6 +22,7 @@ def gpu_telemetry() -> list[dict]:
         "clocks.sm",
         "clocks.mem",
         "memory.total",
+        "mig.mode.current",
     ]
     try:
         result = subprocess.run(
@@ -69,6 +70,8 @@ def inspect_environment(config: RunConfig) -> dict:
             raise ValueError(
                 f"Official runs require nvidia-smi reporting exactly one {OFFICIAL_GPU}"
             )
+        if telemetry[0].get("mig.mode.current") != "Disabled":
+            raise ValueError(f"Official runs require MIG disabled on the {OFFICIAL_GPU}")
         if platform.python_version_tuple()[:2] != ("3", "12"):
             raise ValueError("Official runs require Python 3.12")
         if torch.__version__.split("+")[0] != "2.4.0":

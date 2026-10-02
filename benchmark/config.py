@@ -1,7 +1,7 @@
 import math
 from dataclasses import asdict, dataclass
 
-OFFICIAL_GPU = "NVIDIA L40"
+OFFICIAL_GPU = "NVIDIA A100 80GB PCIe"
 OFFICIAL_TRIALS = 40
 ACCURACY_TARGET = 0.75
 EVAL_TIMEOUT_SECONDS = 5.0

@@ -8,17 +8,17 @@ lowered the training time while keeping mean accuracy at or above 75%.
 uv run python -m benchmark.run --submission encode --n 40
 ```
 
-**Result:** 75.15% mean accuracy and 4.68 s mean preparation + training, measured on an
-NVIDIA A100 80GB PCIe in the pinned environment with 40 fresh seeds and default settings.
+**Result:** 75.35% mean accuracy and 3.79 s mean preparation + training, measured on an
+NVIDIA A100-SXM4-80GB (400 W) in the pinned environment with 80 fresh seeds and default settings.
 
 ## Method
 
 - **Network:** a fixed 2×2 whitening convolution, three convolution–BatchNorm–GELU stages
-  (widths 128/384/640) with residual connections, global max-pooling and a linear head.
+  (widths 64/256/768) with residual connections, global max-pooling and a linear head.
   Stage 1's residual branch uses a 1×1 convolution.
-- **Data:** random 2-pixel translations and alternating horizontal flips. The first half of
-  training runs at 20 px, the rest at 32 px.
-- **Optimisation:** Nesterov SGD with lookahead, label smoothing 0.4, batch 1024, 8.25 epochs.
+- **Data:** random 2-pixel translations and alternating horizontal flips. Training runs at 20 px
+  for the first 15%, 24 px to the half, then 32 px.
+- **Optimisation:** Nesterov SGD with lookahead, label smoothing 0.4, batch 1024, 10.25 epochs.
 - **Efficiency:** fp16, with the model, loss and optimiser step compiled by `torch.compile`.
   Parts of the network leave autograd once their learning rate reaches zero: the whitening
   bias after 3 epochs, and stage 1 after 80% of training.

@@ -11,8 +11,8 @@ class RecipeConfig:
     """Recipe hyperparameters; the defaults are the submission. ``lr`` and ``weight_decay``
     are per 1024 examples and independent of ``momentum``."""
 
-    widths: tuple[int, int, int] = (128, 384, 640)
-    epochs: float = 8.25
+    widths: tuple[int, int, int] = (64, 256, 768)
+    epochs: float = 10.25
     batch_size: int = 1024
     lr: float = 11.5
     momentum: float = 0.85
@@ -29,7 +29,7 @@ class RecipeConfig:
     scaling_factor: float = 1 / 6
     translate: int = 2
     # Progressive resizing: ((start_fraction, size), ...), ending at the 32 px test resolution.
-    res_schedule: tuple[tuple[float, int], ...] = ((0.0, 20), (0.5, 32))
+    res_schedule: tuple[tuple[float, int], ...] = ((0.0, 20), (0.15, 24), (0.5, 32))
     # Convs per stage; 3 adds the residual conv-BN-GELU branch.
     stage_depths: tuple[int, int, int] = (3, 2, 3)
     # Identity skip around depth-2 stages (x + conv-BN-GELU(x)).

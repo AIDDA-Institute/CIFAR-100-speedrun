@@ -9,9 +9,9 @@ from benchmark import run
 @pytest.mark.parametrize(
     "arguments, expected_target, expected_trials",
     [
-        ([], 0.75, 40),
+        ([], 0.75, 200),
         (["--accuracy-target", "0.8", "--n", "3"], 0.8, 3),
-        (["--no-accuracy-target"], None, 40),
+        (["--no-accuracy-target"], None, 200),
     ],
 )
 def test_cli_passes_the_selected_configuration(
@@ -52,7 +52,7 @@ def test_official_cli_requires_shared_seed_file(monkeypatch, capsys):
 
 
 def test_official_cli_preserves_the_organizer_seed_list(monkeypatch, tmp_path):
-    seeds = list(range(1000, 1040))
+    seeds = list(range(1000, 1200))
     seed_file = tmp_path / "seeds.json"
     seed_file.write_text(json.dumps(seeds))
     observed = []
@@ -70,4 +70,4 @@ def test_official_cli_preserves_the_organizer_seed_list(monkeypatch, tmp_path):
     run.main()
     assert observed[0]["seeds"] == seeds
     assert observed[0]["config"].official is True
-    assert observed[0]["config"].n_trials == 40
+    assert observed[0]["config"].n_trials == 200

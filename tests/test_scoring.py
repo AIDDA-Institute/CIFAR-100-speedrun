@@ -36,13 +36,13 @@ def test_invalid_target_rejected(target):
 
 def test_official_configuration_is_fixed():
     config = RunConfig(official=True)
-    assert config.n_trials == 40
+    assert config.n_trials == 200
     assert config.eval_timeout == 5
     config.validate()
     for kwargs in (
         {"device": "cpu"},
         {"n_trials": 1},
-        {"n_trials": 200},
+        {"n_trials": 40},
         {"eval_timeout": 6},
         {"eval_timeout": 30},
         {"synthetic": True},

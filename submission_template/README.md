@@ -27,7 +27,7 @@ the harness does this for an official submission:
 
 ```python
 state = build(context)                 # once for the submission
-for seed in organizer_seeds:           # 40 separate trials
+for seed in organizer_seeds:           # 200 separate trials
     # The harness seeds the standard random generators first.
     prepare(state, training_data, seed)  # timed: start fresh
     model = train(state)                # timed: learn from training images

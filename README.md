@@ -2,8 +2,11 @@
 
 Build a training recipe that reaches **at least 75% average test accuracy** on
 CIFAR-100 in as little time as possible. Official judging uses one NVIDIA A100
-80GB PCIe and 40 fresh training trials. Your score is the average **preparation +
+80GB PCIe and 200 fresh training trials. Your score is the average **preparation +
 training time** across those trials; inference time is excluded.
+
+See the [official scoreboard](SCOREBOARD.md) and its
+[machine-readable source](scoreboard.json).
 
 To enter, fork this repository, develop your recipe in `submissions/<your_team>/`,
 and open a pull request. Start with the steps below, then read the rules:
@@ -211,8 +214,8 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 
 - Every submission runs on one NVIDIA A100 80GB PCIe, with MIG disabled, in the
   fixed software environment.
-- Each recipe trains from scratch for the same 40 organizer-selected seeds.
-- All 40 trials must succeed, and average test accuracy must reach **at least 75%**.
+- Each recipe trains from scratch for the same 200 organizer-selected seeds.
+- All 200 trials must succeed, and average test accuracy must reach **at least 75%**.
   There is no additional accuracy requirement for each individual trial.
 - Accuracy is **top-1**: the percentage of the 10,000 test images for which the
   model's highest-scoring class matches the correct label among the 100 classes.
@@ -224,7 +227,7 @@ harness. Changes outside your team folder are not part of the submitted recipe.
 
 See [RULES.md](RULES.md) for the full timing boundaries, resource limits, and
 allowed training methods. The organizers handle the official seed file and final
-40-trial evaluation.
+200-trial evaluation.
 
 ## License
 
@@ -250,7 +253,7 @@ real CIFAR-100 trials on an NVIDIA A100 80GB PCIe using the repository's Dockerf
 Standard Docker GPU launch, disabled MIG mode, the four-CPU quota, and network
 isolation all passed. This two-trial pilot completes the launch check; no further
 baseline calibration is required. It is a development result, not an official
-score. Official judging still uses **40 trials per submission**.
+score. Official judging now uses **200 trials per submission**.
 
 ### Previous hardware calibration
 

@@ -55,7 +55,7 @@ matching host and thermal conditions. Official mode requires `--seed-file` for
 individual submissions and `--all`; organizers must reuse the same file across
 separate runs.
 
-Official runs require 40 successful trials and enforce the 75% target. Development
+Official runs require 200 successful trials and enforce the 75% target. Development
 results are never labeled official. The harness records software and hardware
 details, telemetry, seeds, parameters, the exact submitted source, and source hashes.
 
@@ -78,6 +78,22 @@ Keep failed trials and all raw results. Only an independently verified
 infrastructure failure permits a rerun: restart the entire frozen submission
 with the same seeds and retain both attempts' logs. Never retry or select trials
 based on their accuracy or training time.
+
+## Scoreboard maintenance
+
+Keep `scoreboard.json` as the source of truth and regenerate `SCOREBOARD.md` with:
+
+```bash
+uv run python -m benchmark.render_scoreboard
+```
+
+Check that the published table matches its data with
+`uv run python -m benchmark.render_scoreboard --check`. Add a new record for each
+completed official run; keep earlier attempts so the result history is auditable.
+Only completed 200-trial official runs can receive a competition rank. Keep pilot
+baselines visibly marked as references, outside the ranked results. Publish a hash
+or identifier for the seed set, never its seed values. Retain raw trials and the
+full seed file in organizer-controlled storage.
 
 ## Calibration recipes
 

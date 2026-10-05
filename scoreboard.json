@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-05",
+  "competition": "CIFAR-100 speedrun",
+  "official_policy": {
+    "trials": 200,
+    "accuracy_target_percent": 75,
+    "gpu": "NVIDIA A100 80GB PCIe",
+    "score": "mean preparation + training time in seconds; lower is better",
+    "inference_time_scored": false
+  },
+  "seed_set_hash_method": "SHA-256 of ordered decimal seed values, one per line, newline-terminated; raw seeds are not published",
+  "entries": [
+    {
+      "display_order": 1,
+      "category": "reference_baseline",
+      "rank": null,
+      "display_name": "Organizer ResNet9 baseline",
+      "submission_slug": "organizer-calibration",
+      "submitter": {
+        "type": "organizer reference",
+        "display_name": "Competition organizers"
+      },
+      "submitted_at": null,
+      "pull_request": null,
+      "source": {
+        "repository_commit": "ae3e56962514f8fe3f066d9a316a2336e4748249",
+        "source_available_in_public_repo": false,
+        "source_note": "Organizer calibration source remains in the ignored .local directory; the public README records the recipe and run conditions.",
+        "submission_sha256": "417f46e44707349336019431c13d6acf244be1808ee9af1fcb8633edd15f2d10",
+        "recipe_sha256": "0b6690b1b5299a37ce4983921a519f81fea4a59bdb5a4abde743602e9129acde",
+        "recipe": "ResNet9-style residual CNN, width 64, 40 epochs, batch size 256, BF16, no torch.compile"
+      },
+      "run": {
+        "run_id": "20261002T205036Z-25176883",
+        "measured_at": "2026-10-02",
+        "status": "reference_only",
+        "official": false,
+        "trial_count": 2,
+        "successful_trials": 2,
+        "mean_accuracy_percent": 75.36,
+        "accuracy_std_percentage_points": 0.2828427124746192,
+        "mean_prepare_train_seconds": 59.30448319249999,
+        "prepare_train_std_seconds": 0.28400063871963016,
+        "mean_inference_seconds": 0.11723752449998415,
+        "seed_set_id": "baseline-development-pilot-2026-10-02",
+        "seed_set_sha256": "f17c48020a15637c98cabe5359f7876c73382019fec23e38cde55c0f7cd73e82",
+        "environment": {
+          "gpu": "NVIDIA A100 80GB PCIe",
+          "mig": "Disabled",
+          "driver": "535.183.06",
+          "cpu_quota": 4,
+          "cpu_threads": 4,
+          "python": "3.12.10",
+          "pytorch": "2.4.0+cu124",
+          "networking": "disabled",
+          "docker_image_digest": "sha256:c21290e3f58e1856f46b988b00f7f2eaec7924116639540594f4308fbc497501"
+        },
+        "record_url": "https://cthree.cloud/squeue/job_1790973607747_6emc7l"
+      }
+    },
+    {
+      "display_order": 2,
+      "category": "official_submission",
+      "rank": 1,
+      "display_name": "Vibecoders",
+      "submission_slug": "futurebiohackers",
+      "submitter": {
+        "type": "GitHub pull request author",
+        "github_login": "comersy"
+      },
+      "submitted_at": "2026-10-04T13:12:19Z",
+      "pull_request": {
+        "number": 2,
+        "url": "https://github.com/AIDDA-Institute/CIFAR-100-speedrun/pull/2",
+        "merged_at": "2026-10-05T10:43:07Z",
+        "merged_commit": "28fce3fa90ab02bd5320b43231669492103ebd9f"
+      },
+      "source": {
+        "submission_commit": "9448bed500993bc42ee4fc0ba9f7933e6f734792",
+        "source_manifest_sha256": "b388ee7c374aaa972be68b9c45e5328b54afddbaa3fbb0554eee7eb4ceee437f",
+        "files_sha256": {
+          "LICENSE.airbench": "418c56bc42284062ac536f12496a0e1d9c8edb68bcde8da29675bd48492ce022",
+          "LICENSE.hiverge": "ec423cc5506eea1ffbfc9955c3ec8f86139996963d84ff306a5ee41eda8a4ff1",
+          "README.md": "fed3b80467a11eb54a07d74f8a8c6ac7c7e18d9d8beacc61c7002bf15b3da0fd",
+          "kernels.py": "843fac2cfede82b233e43b47e2bbbb507d9316512951189f58e976148199f10a",
+          "submission.py": "aaa3ac607a84489383ecb8d721c1652bbbee242720f6d0eefbc28d9cab276933"
+        }
+      },
+      "run": {
+        "run_id": "20261005T094622Z-c25b2082",
+        "measured_at": "2026-10-05",
+        "status": "qualified",
+        "official": true,
+        "trial_count": 200,
+        "successful_trials": 200,
+        "accuracy_target_percent": 75,
+        "mean_accuracy_percent": 75.2486,
+        "accuracy_std_percentage_points": 0.21886192613967317,
+        "mean_prepare_train_seconds": 3.961773858335002,
+        "prepare_train_std_seconds": 0.02518953083277138,
+        "mean_inference_seconds": 0.06187221123499285,
+        "seed_set_id": "organizer-200-seed-set-2026-10-05",
+        "seed_set_sha256": "db99e30052d86c80ed88d8ee8fe4f0546bb1bd160ea259df12036557a715d366",
+        "environment": {
+          "gpu": "NVIDIA A100 80GB PCIe",
+          "mig": "Disabled",
+          "driver": "580.95.05",
+          "cpu_quota": 4,
+          "cpu_threads": 4,
+          "python": "3.12.10",
+          "pytorch": "2.4.0+cu124",
+          "networking": "disabled"
+        },
+        "benchmark_source": {
+          "base_commit": "25237e32db236abe94dfd6971ded79b22c3adb07",
+          "git_commit": null,
+          "working_tree_change": "OFFICIAL_TRIALS set to 200",
+          "harness_files_sha256": {
+            "__init__.py": "b8652d27eea89904ab7f9c8c9edf6dcddb0afa4923b7597445cad1ec3deead2b",
+            "_submission.py": "a5f0b2b256e0598733db218c27bfc410d1bb958f6781a6fb07cf38a5ac57e2ad",
+            "api.py": "a6e579fb96e440d03d9af4b6891c2f94dbfbe01bc9a56e66a78a3cdbd6d1b228",
+            "config.py": "119b5ae1edcdb3fb5ac750db478ee66efcc63c3c66b7ca17878beac6f13c3deb",
+            "data.py": "d817fb4df3e1f0410549672c0b889e2b761faa0c99b4e523c11fef55f578167e",
+            "evaluate.py": "2d9c4a05ae1a0c8c8cfa903e8959e1e6490df0a15b06d3f4664bcf024a7d1926",
+            "hardware.py": "55f62015de8a16c9728d8f85c91019280b490380f1a95d5215bb35e6ceed6733",
+            "harness.py": "2287e43be2d4ac83964fc496e887f892b079cba6764ded9defacc3ad29cc783c",
+            "interrupts.py": "e319e7b394c14467957f1184b0bc179735969a5dff69a956d14d55014c3a8804",
+            "run.py": "13939217869f9a8ed08dc5e88b53051f85d52e5c59fecaeb169e6e1b8e8926c7",
+            "scoring.py": "e3192bc42ef2af8fe85dd604737b6a7ad9ddb9a05172c53267138e3e5a83f71a",
+            "timing.py": "bd4662e5659647aac83c2bd08d21125df135ca82c3188efc99891cfaa1410cab",
+            "worker.py": "509a62a40349e118a4c4e52dbec045f37419fe23602de8137462e3dd15da1078"
+          }
+        }
+      }
+    }
+  ]
+}

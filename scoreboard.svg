@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" role="img" aria-labelledby="chart-title chart-description">
+<title id="chart-title">CIFAR-100 speedrun scoreboard performance</title>
+<desc id="chart-description">Mean preparation and training seconds by scoreboard date. The vertical axis is logarithmic. The baseline is a two-trial reference; PR number 2 is the official 200-trial qualifier.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172033}.grid{stroke:#d9e0ea;stroke-width:1}.axis{stroke:#596579;stroke-width:1.5}.tick{font-size:14px;fill:#526071}.title{font-size:24px;font-weight:700}.subtitle{font-size:15px;fill:#526071}.label{font-size:16px;font-weight:700}.detail{font-size:14px;fill:#526071}.baseline{fill:#64748b;stroke:#fff;stroke-width:2}.submission{fill:#1769aa;stroke:#fff;stroke-width:2}</style>
+<text class="title" x="150" y="42">Mean preparation + training time</text>
+<text class="subtitle" x="150" y="70">Lower is faster · logarithmic seconds · horizontal axis uses scoreboard dates</text>
+<line class="grid" x1="150" y1="485.0" x2="850" y2="485.0"/>
+<text class="tick" x="136" y="490.0" text-anchor="end">1</text>
+<line class="grid" x1="150" y1="429.3" x2="850" y2="429.3"/>
+<text class="tick" x="136" y="434.3" text-anchor="end">2</text>
+<line class="grid" x1="150" y1="355.7" x2="850" y2="355.7"/>
+<text class="tick" x="136" y="360.7" text-anchor="end">5</text>
+<line class="grid" x1="150" y1="300.0" x2="850" y2="300.0"/>
+<text class="tick" x="136" y="305.0" text-anchor="end">10</text>
+<line class="grid" x1="150" y1="244.3" x2="850" y2="244.3"/>
+<text class="tick" x="136" y="249.3" text-anchor="end">20</text>
+<line class="grid" x1="150" y1="170.7" x2="850" y2="170.7"/>
+<text class="tick" x="136" y="175.7" text-anchor="end">50</text>
+<line class="grid" x1="150" y1="115.0" x2="850" y2="115.0"/>
+<text class="tick" x="136" y="120.0" text-anchor="end">100</text>
+<line class="axis" x1="150" y1="115" x2="150" y2="485"/>
+<line class="axis" x1="150" y1="485" x2="850" y2="485"/>
+<text class="tick" transform="translate(38 300.0) rotate(-90)" text-anchor="middle">Mean prepare + train time (seconds)</text>
+<line class="axis" x1="150.0" y1="485" x2="150.0" y2="491"/>
+<text class="tick" x="150.0" y="515" text-anchor="middle">Sep 1, 2026</text>
+<line class="axis" x1="850.0" y1="485" x2="850.0" y2="491"/>
+<text class="tick" x="850.0" y="515" text-anchor="middle">Oct 4, 2026</text>
+<rect class="baseline" x="142.0" y="149.0" width="16" height="16" rx="2"/>
+<text class="label" x="175.0" y="151.0" text-anchor="start">Organizer baseline · 59.30 s</text>
+<text class="detail" x="175.0" y="174.0" text-anchor="start">75.36% accuracy · n=2 · reference only</text>
+<circle class="submission" cx="850.0" cy="374.4" r="10"/>
+<text class="label" x="825.0" y="368.4" text-anchor="end">PR #2 · 3.9618 s</text>
+<text class="detail" x="825.0" y="391.4" text-anchor="end">75.2486% accuracy · n=200 · rank 1</text>
+<text class="subtitle" x="150" y="570">Run measurement dates are listed in the table.</text>
+</svg>

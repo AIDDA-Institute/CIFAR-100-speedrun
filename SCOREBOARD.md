@@ -9,7 +9,7 @@ The organizer baseline is a short reference pilot, not a ranked submission. Its 
 | Entry | Submission / attribution | Status | Trials | Mean test accuracy | Mean prepare + train | Submitted / measured |
 | ---: | --- | --- | ---: | ---: | ---: | --- |
 | 1 | [Organizer ResNet9 baseline](README.md#verified-a100-setup) | Reference only; not ranked | 2/2 (pilot) | 75.3600% ± 0.2828 pp | 59.3045 ± 0.2840 s | — / 2026-10-02 |
-| 2 | [Vibecoders / futurebiohackers (PR #2)](https://github.com/AIDDA-Institute/CIFAR-100-speedrun/pull/2)<br>@comersy | Official qualifier; rank 1 | 200/200 | 75.2486% ± 0.2189 pp | 3.9618 ± 0.0252 s | 2026-10-04 / 2026-10-05 |
+| 2 | [Vibecoders (PR #2)](https://github.com/AIDDA-Institute/CIFAR-100-speedrun/pull/2)<br>@comersy | Official qualifier; rank 1 | 200/200 | 75.2486% ± 0.2189 pp | 3.9618 ± 0.0252 s | 2026-10-04 / 2026-10-05 |
 
 The baseline pilot ran on an A100 80GB PCIe with four CPU threads, but it used only two trials and is not an official score. Raw seed values are withheld; the JSON stores a hash of each ordered seed list for provenance.
 

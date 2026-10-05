@@ -44,10 +44,7 @@ def render(data: dict) -> str:
         else:
             pull = entry["pull_request"]
             submitter = entry["submitter"].get("github_login")
-            name = (
-                f"[{entry['display_name']} / {entry['submission_slug']} "
-                f"(PR #{pull['number']})]({pull['url']})"
-            )
+            name = f"[{entry['display_name']} (PR #{pull['number']})]({pull['url']})"
             if submitter:
                 name += f"<br>@{submitter}"
             status = f"Official qualifier; rank {entry['rank']}"

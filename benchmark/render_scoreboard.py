@@ -11,10 +11,8 @@ OUTPUT_PATH = ROOT / "SCOREBOARD.md"
 SVG_PATH = ROOT / "scoreboard.svg"
 
 
-def scoreboard_date(entry: dict) -> str:
-    if entry["category"] == "reference_baseline":
-        return entry["scoreboard_date"]
-    return entry["submitted_at"][:10]
+def measurement_date(entry: dict) -> str:
+    return entry["run"]["measured_at"]
 
 
 def render(data: dict) -> str:
@@ -33,8 +31,8 @@ def render(data: dict) -> str:
         "as mean ± sample standard deviation across trials.",
         "",
         "| Entry | Submission / attribution | Status | Trials | Mean test accuracy | "
-        "Mean prepare + train | Scoreboard date | Measured |",
-        "| ---: | --- | --- | ---: | ---: | ---: | --- | --- |",
+        "Mean prepare + train | Submitted / measured |",
+        "| ---: | --- | --- | ---: | ---: | ---: | --- |",
     ]
 
     for entry in sorted(data["entries"], key=lambda row: row["display_order"]):
@@ -42,6 +40,7 @@ def render(data: dict) -> str:
         if entry["category"] == "reference_baseline":
             name = f"[{entry['display_name']}](README.md#verified-a100-setup)"
             status = "Reference only; not ranked"
+            submitted = "—"
         else:
             pull = entry["pull_request"]
             submitter = entry["submitter"].get("github_login")
@@ -52,9 +51,9 @@ def render(data: dict) -> str:
             if submitter:
                 name += f"<br>@{submitter}"
             status = f"Official qualifier; rank {entry['rank']}"
+            submitted = entry["submitted_at"][:10]
 
         measured = run["measured_at"]
-        date = scoreboard_date(entry)
         trials = f"{run['successful_trials']}/{run['trial_count']}"
         if run["official"] is False:
             trials += " (pilot)"
@@ -68,7 +67,7 @@ def render(data: dict) -> str:
         )
         lines.append(
             f"| {entry['display_order']} | {name} | {status} | {trials} | {accuracy} | "
-            f"{timing} | {date} | {measured} |"
+            f"{timing} | {submitted} / {measured} |"
         )
 
     lines.extend(
@@ -79,11 +78,10 @@ def render(data: dict) -> str:
             "stores "
             "a hash of each ordered seed list for provenance.",
             "",
-            "The graph uses the scoreboard date: the requested reference date for the baseline "
-            "and each pull request’s creation date for submissions. The measured column preserves "
-            "the actual benchmark dates.",
+            "The graph uses each run’s measurement date. PR creation dates are listed separately "
+            "in the table.",
             "",
-            "![Mean preparation and training time by scoreboard date](scoreboard.svg)",
+            "![Mean preparation and training time by measurement date](scoreboard.svg)",
             "",
             "PR #2’s source was frozen and matched to the 200-trial run by file hashes. The run "
             "artifact did not contain a Git commit for the harness, so its base commit and exact "
@@ -105,7 +103,7 @@ def render_svg(data: dict) -> str:
     width, height = 1000, 620
     left, right, top, bottom = 150, 850, 115, 485
     min_seconds, max_seconds = 1, 100
-    dates = [scoreboard_date(entry) for entry in entries]
+    dates = [measurement_date(entry) for entry in entries]
     start_day = date.fromisoformat(min(dates))
     end_day = date.fromisoformat(max(dates))
     span_days = max(1, (end_day - start_day).days)
@@ -123,7 +121,7 @@ def render_svg(data: dict) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
         'role="img" aria-labelledby="chart-title chart-description">',
         '<title id="chart-title">CIFAR-100 speedrun scoreboard performance</title>',
-        '<desc id="chart-description">Mean preparation and training seconds by scoreboard date. '
+        '<desc id="chart-description">Mean preparation and training seconds by measurement date. '
         "The vertical axis is logarithmic. The baseline is a two-trial reference; PR number 2 "
         'is the official 200-trial qualifier.</desc>',
         '<rect width="100%" height="100%" fill="#ffffff"/>',
@@ -135,7 +133,7 @@ def render_svg(data: dict) -> str:
         '</style>',
         '<text class="title" x="150" y="42">Mean preparation + training time</text>',
         '<text class="subtitle" x="150" y="70">Lower is faster · logarithmic seconds · horizontal '
-        "axis uses scoreboard dates</text>",
+        "axis shows run measurement dates</text>",
     ]
 
     for seconds in (1, 2, 5, 10, 20, 50, 100):
@@ -170,7 +168,7 @@ def render_svg(data: dict) -> str:
 
     for entry in entries:
         run = entry["run"]
-        x = x_for(scoreboard_date(entry))
+        x = x_for(measurement_date(entry))
         y = y_for(run["mean_prepare_train_seconds"])
         if entry["category"] == "reference_baseline":
             marker = (

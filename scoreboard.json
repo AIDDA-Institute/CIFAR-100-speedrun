@@ -14,7 +14,6 @@
     {
       "display_order": 1,
       "category": "reference_baseline",
-      "scoreboard_date": "2026-09-01",
       "rank": null,
       "display_name": "Organizer ResNet9 baseline",
       "submission_slug": "organizer-calibration",

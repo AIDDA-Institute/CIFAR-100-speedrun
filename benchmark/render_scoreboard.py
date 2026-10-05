@@ -177,14 +177,14 @@ def render_svg(data: dict) -> str:
             )
             anchor, label_x = "start", x + 25
             title = f"Organizer baseline · {run['mean_prepare_train_seconds']:.2f} s"
-            detail = f"{run['mean_accuracy_percent']:.2f}% accuracy · reference only"
+            detail = f"{run['mean_accuracy_percent']:.2f}% accuracy"
         else:
             marker = (
                 f'<circle class="submission" cx="{x:.1f}" cy="{y:.1f}" r="10"/>'
             )
             anchor, label_x = "end", x - 25
             title = f"PR #2 · {run['mean_prepare_train_seconds']:.4f} s"
-            detail = f"{run['mean_accuracy_percent']:.4f}% accuracy · official qualifier"
+            detail = f"{run['mean_accuracy_percent']:.4f}% accuracy"
         parts.extend(
             [
                 marker,

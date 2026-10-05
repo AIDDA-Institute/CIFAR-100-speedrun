@@ -28,9 +28,9 @@
 <text class="tick" x="850.0" y="515" text-anchor="middle">Oct 5, 2026</text>
 <rect class="baseline" x="142.0" y="149.0" width="16" height="16" rx="2"/>
 <text class="label" x="175.0" y="151.0" text-anchor="start">Organizer baseline · 59.30 s</text>
-<text class="detail" x="175.0" y="174.0" text-anchor="start">75.36% accuracy · reference only</text>
+<text class="detail" x="175.0" y="174.0" text-anchor="start">75.36% accuracy</text>
 <circle class="submission" cx="850.0" cy="374.4" r="10"/>
 <text class="label" x="825.0" y="368.4" text-anchor="end">PR #2 · 3.9618 s</text>
-<text class="detail" x="825.0" y="391.4" text-anchor="end">75.2486% accuracy · official qualifier</text>
+<text class="detail" x="825.0" y="391.4" text-anchor="end">75.2486% accuracy</text>
 <text class="subtitle" x="150" y="570">Run measurement dates are listed in the table.</text>
 </svg>
